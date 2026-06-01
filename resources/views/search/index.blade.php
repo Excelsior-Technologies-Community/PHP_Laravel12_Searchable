@@ -1,55 +1,298 @@
 @extends('layouts.app')
 
-@section('title', 'Search Posts')
-
 @section('content')
-<div class="max-w-5xl mx-auto px-6 mt-12">
 
-    <!-- Search Card -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-800">
-            Search Posts
-        </h2>
+<div class="container mt-5">
 
-        <form action="{{ route('search') }}" method="GET" class="flex gap-3">
-            <input
-                type="text"
-                name="search"
-                value="{{ request('search') }}"
-                placeholder="Type keywords..."
-                class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                required
-            >
-            <button
-                type="submit"
-                class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition"
-            >
-                Search
-            </button>
-        </form>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold text-white">
+                Laravel Search Dashboard
+            </h2>
+
+            <p class="text-secondary">
+                Manage searchable posts professionally
+            </p>
+        </div>
+
+        <a href="/posts/create" class="btn btn-primary px-4">
+            + Create Post
+        </a>
+
     </div>
 
-    <!-- Results -->
-    @if(isset($searchResults))
-        <div class="mt-8">
-            <h3 class="text-lg font-semibold mb-4 text-gray-700">
-                Search Results
-            </h3>
+    {{-- Dashboard Card --}}
+    <div class="card shadow-lg border-0 mb-4 bg-dark text-white">
 
-            @forelse($searchResults as $result)
-                <div class="bg-white rounded-lg shadow p-5 mb-4 hover:shadow-md transition">
-                    <a href="{{ $result->url }}"
-                       class="text-indigo-600 font-medium text-lg hover:underline">
-                        {{ $result->title }}
-                    </a>
-                </div>
-            @empty
-                <div class="bg-white p-6 rounded shadow text-gray-500 text-center">
-                    No matching records found.
-                </div>
-            @endforelse
+        <div class="card-body p-4">
+
+            <h6 class="text-secondary">
+                Total Posts
+            </h6>
+
+            <h1 class="fw-bold">
+                {{ $totalPosts }}
+            </h1>
+
         </div>
+
+    </div>
+
+    {{-- Success Message --}}
+    @if(session('success'))
+
+        <div class="alert alert-success border-0 shadow-sm">
+
+            {{ session('success') }}
+
+        </div>
+
+    @endif
+
+    {{-- Search Box --}}
+    <div class="card border-0 shadow-lg bg-dark mb-4">
+
+        <div class="card-body p-4">
+
+            <form action="/" method="GET">
+
+                <div class="row g-3">
+
+                    <div class="col-md-10">
+
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control bg-secondary border-0 text-white"
+                            placeholder="Search title or content..."
+                            value="{{ request('search') }}">
+
+                    </div>
+
+                    <div class="col-md-2 d-grid">
+
+                        <button class="btn btn-primary">
+
+                            Search
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    {{-- Posts Table --}}
+    <div class="card border-0 shadow-lg bg-dark text-white">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-dark table-hover align-middle mb-0">
+
+                    <thead class="table-secondary text-dark">
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Content</th>
+                            <th>Date</th>
+                            <th width="180">Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    @forelse($posts as $post)
+
+                        <tr>
+
+                            <td>
+                                {{ $post->id }}
+                            </td>
+
+                            <td class="fw-semibold">
+                                {{ $post->title }}
+                            </td>
+
+                            <td>
+                                {{ Str::limit($post->content, 70) }}
+                            </td>
+
+                            <td>
+                                {{ $post->created_at->format('d M Y') }}
+                            </td>
+
+                            <td>
+
+                                <div class="d-flex gap-2">
+
+                                    {{-- View Button --}}
+                                    <a
+                                        href="{{ route('posts.show', $post->id) }}"
+                                        class="btn btn-success btn-sm">
+
+                                        View
+
+                                    </a>
+
+                                    {{-- Delete Button --}}
+                                    <form
+                                        action="{{ route('posts.destroy', $post->id) }}"
+                                        method="POST">
+
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Are you sure?')">
+
+                                            Delete
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="5" class="text-center py-5">
+
+                                <div class="text-danger fw-bold">
+
+                                    No Posts Found
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- Custom Pagination --}}
+    @if ($posts->hasPages())
+
+        <div class="d-flex justify-content-center mt-4">
+
+            <nav>
+
+                <ul class="pagination pagination-sm">
+
+                    {{-- Previous --}}
+                    @if ($posts->onFirstPage())
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link bg-dark border-secondary text-light">
+
+                                &laquo;
+
+                            </span>
+
+                        </li>
+
+                    @else
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link bg-dark border-secondary text-light"
+                                href="{{ $posts->previousPageUrl() }}">
+
+                                &laquo;
+
+                            </a>
+
+                        </li>
+
+                    @endif
+
+                    {{-- Numbers --}}
+                    @foreach ($posts->getUrlRange(1, $posts->lastPage()) as $page => $url)
+
+                        <li class="page-item {{ $page == $posts->currentPage() ? 'active' : '' }}">
+
+                            <a
+                                class="page-link
+                                {{ $page == $posts->currentPage()
+                                    ? 'bg-primary border-primary text-white'
+                                    : 'bg-dark border-secondary text-light' }}"
+                                href="{{ $url }}">
+
+                                {{ $page }}
+
+                            </a>
+
+                        </li>
+
+                    @endforeach
+
+                    {{-- Next --}}
+                    @if ($posts->hasMorePages())
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link bg-dark border-secondary text-light"
+                                href="{{ $posts->nextPageUrl() }}">
+
+                                &raquo;
+
+                            </a>
+
+                        </li>
+
+                    @else
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link bg-dark border-secondary text-light">
+
+                                &raquo;
+
+                            </span>
+
+                        </li>
+
+                    @endif
+
+                </ul>
+
+            </nav>
+
+        </div>
+
     @endif
 
 </div>
-@endsection
+
+@endsectio

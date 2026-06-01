@@ -8,41 +8,52 @@ use App\Models\Post;
 
 class SearchController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('search.index');
+        $search = $request->search;
+
+        $posts = Post::when($search, function ($query) use ($search) {
+            $query->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+        })
+        ->oldest()
+        ->paginate(3);
+
+        $totalPosts = Post::count();
+
+        return view('search.index', compact('posts', 'search', 'totalPosts'));
     }
 
     public function create()
-{
-    return view('search.create');
-}
-
-public function store(Request $request)
-{
-    $request->validate([
-        'title' => 'required',
-        'content' => 'required',
-    ]);
-
-    \App\Models\Post::create($request->only('title', 'content'));
-
-    return redirect('/')->with('success', 'Post created successfully');
-}
-
-
-    public function search(Request $request)
     {
-        $searchResults = (new Search())
-            ->registerModel(Post::class, ['title', 'content'])
-            ->search($request->search);
+        return view('search.create');
+    }
 
-        return view('search.index', compact('searchResults'));
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+        ]);
+
+        Post::create($request->only('title', 'content'));
+
+        return redirect('/')->with('success', 'Post created successfully');
     }
 
     public function show($id)
     {
         $post = Post::findOrFail($id);
+
         return view('search.show', compact('post'));
+    }
+
+    public function destroy($id)
+    {
+        $post = Post::findOrFail($id);
+
+        $post->delete();
+
+        return redirect('/')->with('success', 'Post deleted successfully');
     }
 }
