@@ -122,4 +122,4 @@
 
 </style>
 
-@endsectio
+@endsection

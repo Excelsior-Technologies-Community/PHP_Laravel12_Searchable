@@ -11,3 +11,6 @@ Route::post('/posts/store', [SearchController::class, 'store'])->name('posts.sto
 Route::get('/post/{id}', [SearchController::class, 'show'])->name('posts.show');
 
 Route::delete('/post/delete/{id}', [SearchController::class, 'destroy'])->name('posts.destroy');
+
+Route::get('/posts/export', [SearchController::class, 'export'])
+    ->name('posts.export');

@@ -16,9 +16,23 @@
             </p>
         </div>
 
-        <a href="/posts/create" class="btn btn-primary px-4">
-            + Create Post
-        </a>
+        <div class="d-flex gap-2">
+
+            {{-- Export CSV Button --}}
+            <a href="{{ route('posts.export', ['search' => request('search')]) }}"
+                class="btn btn-success px-3">
+
+                <i class="bi bi-download"></i>
+                Export CSV
+
+            </a>
+
+            {{-- Create Post Button --}}
+            <a href="/posts/create" class="btn btn-primary px-4">
+                + Create Post
+            </a>
+
+        </div>
 
     </div>
 
@@ -42,11 +56,11 @@
     {{-- Success Message --}}
     @if(session('success'))
 
-        <div class="alert alert-success border-0 shadow-sm">
+    <div class="alert alert-success border-0 shadow-sm">
 
-            {{ session('success') }}
+        {{ session('success') }}
 
-        </div>
+    </div>
 
     @endif
 
@@ -59,7 +73,7 @@
 
                 <div class="row g-3">
 
-                    <div class="col-md-10">
+                    <div class="col-md-7">
 
                         <input
                             type="text"
@@ -70,12 +84,30 @@
 
                     </div>
 
+                    <div class="col-md-3">
+
+                        <select
+                            name="sort"
+                            class="form-control bg-secondary border-0 text-white">
+
+                            <option value="oldest"
+                                {{ request('sort') == 'oldest' ? 'selected' : '' }}>
+                                Oldest First
+                            </option>
+
+                            <option value="newest"
+                                {{ request('sort') == 'newest' ? 'selected' : '' }}>
+                                Newest First
+                            </option>
+
+                        </select>
+
+                    </div>
+
                     <div class="col-md-2 d-grid">
 
                         <button class="btn btn-primary">
-
                             Search
-
                         </button>
 
                     </div>
@@ -87,6 +119,21 @@
         </div>
 
     </div>
+
+    {{-- Search Result Count --}}
+    @if($search)
+
+    <div class="alert alert-info border-0 shadow-sm">
+
+        Found
+        <strong>{{ $searchResultsCount }}</strong>
+        result(s) for
+
+        <strong>"{{ $search }}"</strong>
+
+    </div>
+
+    @endif
 
     {{-- Posts Table --}}
     <div class="card border-0 shadow-lg bg-dark text-white">
@@ -113,7 +160,7 @@
 
                     <tbody>
 
-                    @forelse($posts as $post)
+                        @forelse($posts as $post)
 
                         <tr>
 
@@ -170,7 +217,7 @@
 
                         </tr>
 
-                    @empty
+                        @empty
 
                         <tr>
 
@@ -186,7 +233,7 @@
 
                         </tr>
 
-                    @endforelse
+                        @endforelse
 
                     </tbody>
 
@@ -201,98 +248,98 @@
     {{-- Custom Pagination --}}
     @if ($posts->hasPages())
 
-        <div class="d-flex justify-content-center mt-4">
+    <div class="d-flex justify-content-center mt-4">
 
-            <nav>
+        <nav>
 
-                <ul class="pagination pagination-sm">
+            <ul class="pagination pagination-sm">
 
-                    {{-- Previous --}}
-                    @if ($posts->onFirstPage())
+                {{-- Previous --}}
+                @if ($posts->onFirstPage())
 
-                        <li class="page-item disabled">
+                <li class="page-item disabled">
 
-                            <span class="page-link bg-dark border-secondary text-light">
+                    <span class="page-link bg-dark border-secondary text-light">
 
-                                &laquo;
+                        &laquo;
 
-                            </span>
+                    </span>
 
-                        </li>
+                </li>
 
-                    @else
+                @else
 
-                        <li class="page-item">
+                <li class="page-item">
 
-                            <a
-                                class="page-link bg-dark border-secondary text-light"
-                                href="{{ $posts->previousPageUrl() }}">
+                    <a
+                        class="page-link bg-dark border-secondary text-light"
+                        href="{{ $posts->previousPageUrl() }}">
 
-                                &laquo;
+                        &laquo;
 
-                            </a>
+                    </a>
 
-                        </li>
+                </li>
 
-                    @endif
+                @endif
 
-                    {{-- Numbers --}}
-                    @foreach ($posts->getUrlRange(1, $posts->lastPage()) as $page => $url)
+                {{-- Numbers --}}
+                @foreach ($posts->getUrlRange(1, $posts->lastPage()) as $page => $url)
 
-                        <li class="page-item {{ $page == $posts->currentPage() ? 'active' : '' }}">
+                <li class="page-item {{ $page == $posts->currentPage() ? 'active' : '' }}">
 
-                            <a
-                                class="page-link
+                    <a
+                        class="page-link
                                 {{ $page == $posts->currentPage()
                                     ? 'bg-primary border-primary text-white'
                                     : 'bg-dark border-secondary text-light' }}"
-                                href="{{ $url }}">
+                        href="{{ $url }}&search={{ request('search') }}&sort={{ request('sort') }}">
 
-                                {{ $page }}
+                        {{ $page }}
 
-                            </a>
+                    </a>
 
-                        </li>
+                </li>
 
-                    @endforeach
+                @endforeach
 
-                    {{-- Next --}}
-                    @if ($posts->hasMorePages())
+                {{-- Next --}}
+                @if ($posts->hasMorePages())
 
-                        <li class="page-item">
+                <li class="page-item">
 
-                            <a
-                                class="page-link bg-dark border-secondary text-light"
-                                href="{{ $posts->nextPageUrl() }}">
+                    <a
+                        class="page-link bg-dark border-secondary text-light"
+                        href="{{ $posts->nextPageUrl() }}">
 
-                                &raquo;
+                        &raquo;
 
-                            </a>
+                    </a>
 
-                        </li>
+                </li>
 
-                    @else
+                @else
 
-                        <li class="page-item disabled">
+                <li class="page-item disabled">
 
-                            <span class="page-link bg-dark border-secondary text-light">
+                    <span class="page-link bg-dark border-secondary text-light">
 
-                                &raquo;
+                        &raquo;
 
-                            </span>
+                    </span>
 
-                        </li>
+                </li>
 
-                    @endif
+                @endif
 
-                </ul>
+            </ul>
 
-            </nav>
+        </nav>
 
-        </div>
+    </div>
 
     @endif
 
 </div>
 
-@endsectio
+@endsection
