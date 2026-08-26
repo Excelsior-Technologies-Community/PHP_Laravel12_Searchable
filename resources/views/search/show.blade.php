@@ -47,13 +47,43 @@
 
                     <div class="text-center mt-5">
 
-                        <a href="/" class="btn back-btn">
+                        <div class="d-flex justify-content-center gap-3">
 
-                            <i class="bi bi-arrow-left-circle-fill"></i>
+                            <a
+                                href="{{ route('posts.edit', $post->id) }}"
+                                class="btn back-btn">
 
-                            Back to Dashboard
+                                <i class="bi bi-pencil-square"></i>
+                                Edit Post
+                            </a>
 
-                        </a>
+                            <form
+                                action="{{ route('posts.destroy', $post->id) }}"
+                                method="POST">
+
+                                @csrf
+                                @method('DELETE')
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-danger"
+                                    onclick="return confirm('Are you sure you want to delete this post?')">
+
+                                    <i class="bi bi-trash"></i>
+                                    Delete Post
+                                </button>
+
+                            </form>
+
+                            <a href="/" class="btn back-btn">
+
+                                <i class="bi bi-arrow-left-circle-fill"></i>
+
+                                Back to Dashboard
+
+                            </a>
+
+                        </div>
 
                     </div>
 
