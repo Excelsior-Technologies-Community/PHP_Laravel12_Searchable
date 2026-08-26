@@ -21,3 +21,4 @@ Route::get('/posts/export', [SearchController::class, 'export'])
 Route::prefix('api')->group(function () {
     Route::get('/search', [SearchController::class, 'liveSearch'])->name('api.search');
 });
+ 
